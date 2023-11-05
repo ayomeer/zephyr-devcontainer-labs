@@ -1,6 +1,7 @@
 # Base Image (ci-base) + ZephyrSDK + JLink
 
 FROM ubuntu:22.04
+WORKDIR /home
 
 ARG UID=1000
 ARG GID=1000
@@ -138,32 +139,13 @@ RUN mkdir -p /opt/toolchains && \
 ENV ZEPHYR_TOOLCHAIN_VARIANT=zephyr
 
 # Copy SEGGER software package onto container and unpack
-RUN mkdir -p ~/opt/SEGGER
-COPY ./_install/JLink_Linux_V792j_x86_64.tgz ~/opt/SEGGER
-RUN cd ~/opt/SEGGER && \
+RUN mkdir -p /home/opt/SEGGER
+COPY ./_install/JLink_Linux_V792j_x86_64.tgz /home/opt/SEGGER
+RUN cd /home/opt/SEGGER && \
     tar xf JLink_Linux_V792j_x86_64.tgz && \
     rm JLink_Linux_V792j_x86_64.tgz
 
-ENV PATH="~/opt/SEGGER/JLink_Linux_V792j_x86_64:$PATH" 
-
-
-# Create 'user' account
-RUN groupadd -g $GID -o user
-
-RUN useradd -u $UID -m -g user -G plugdev user \
-	&& echo 'user ALL = NOPASSWD: ALL' > /etc/sudoers.d/user \
-	&& chmod 0440 /etc/sudoers.d/user
-
-
-# Run the Zephyr SDK setup script as 'user' in order to ensure that the
-# `Zephyr-sdk` CMake package is located in the package registry under the
-# user's home directory.
-USER user
-
-RUN sudo -E -- bash -c ' \
-	/opt/toolchains/zephyr-sdk-${ZSDK_VERSION}/setup.sh -c && \
-	chown -R user:user /home/user/.cmake \
-	'
+ENV PATH="/home/opt/SEGGER/JLink_Linux_V792j_x86_64:$PATH" 
 
 # Set up zephyr environment
 RUN west init ~/zephyrproject
@@ -171,4 +153,3 @@ RUN cd ~/zephyrproject && \
     west update && \
     west zephyr-export
 
-USER root
