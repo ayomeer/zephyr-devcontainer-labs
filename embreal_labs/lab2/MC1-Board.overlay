@@ -1,0 +1,54 @@
+/ {
+	leds {
+		mc_led0: mc_led_0 {
+			gpios = <&gpioe 0 GPIO_ACTIVE_HIGH>;
+			label = "MC1-Board LED0";
+		};
+		mc_led1: mc_led_1 {
+			gpios = <&gpioe 1 GPIO_ACTIVE_HIGH>;
+			label = "MC1-Board LED1";
+		};
+		mc_led2: mc_led_2 {
+			gpios = <&gpioe 2 GPIO_ACTIVE_HIGH>;
+			label = "MC1-Board LED2";
+		};
+		mc_led3: mc_led_3 {
+			gpios = <&gpioe 3 GPIO_ACTIVE_HIGH>;
+			label = "MC1-Board LED3";
+		};
+	};
+	gpio_keys {
+		mc_t0: mc_button_0 {
+			gpios = <&gpiog 0 GPIO_ACTIVE_LOW>;
+			label = "MC1-Board button T0";
+		};
+		mc_t1: mc_button_1 {
+			gpios = <&gpiog 1 GPIO_ACTIVE_LOW>;
+			label = "MC1-Board button T1";
+		};
+		mc_t2: mc_button_2 {
+			gpios = <&gpiog 2 GPIO_ACTIVE_LOW>;
+			label = "MC1-Board button T2";
+		};
+		mc_t3: mc_button_3 {
+			gpios = <&gpiog 3 GPIO_ACTIVE_LOW>;
+			label = "MC1-Board button T3";
+		};
+		mc_s0: mc_switch_0 {
+			gpios = <&gpiof 3 GPIO_ACTIVE_LOW>;
+			label = "MC1-Board switch S0";
+		};		
+		mc_s1: mc_switch_1 {
+			gpios = <&gpiof 4 GPIO_ACTIVE_LOW>;
+			label = "MC1-Board switch S1";
+		};
+		mc_s2: mc_switch_2 {
+			gpios = <&gpiof 5 GPIO_ACTIVE_LOW>;
+			label = "MC1-Board switch S2";
+		};
+		mc_s3: mc_switch_3 {
+			gpios = <&gpiof 6 GPIO_ACTIVE_LOW>;
+			label = "MC1-Board switch S3";
+		};
+	};
+};

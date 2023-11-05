@@ -1,0 +1,11 @@
+{
+    // Hush CMake Extension
+    "cmake.configureOnOpen": false,
+
+    // Intellisense
+    "C_Cpp.default.compilerPath": "/opt/toolchains/zephyr-sdk-0.16.3/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc",
+    "C_Cpp.default.compileCommands": "~/zephyrproject/project/build/compile_commands.json",
+    "files.associations": {
+        "device.h": "c"
+    }
+}
