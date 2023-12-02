@@ -1,0 +1,19 @@
+&spi5 {
+	/* green board */
+	ili9341: ili9341@0 {
+		rotation = <270>;
+		pwctrla = [39 2C 00 34 02];
+		pwctrlb = [00 F9 F7];
+		disctrl = [0A 82 27];
+		vmctrl1 = [49 60];
+		vmctrl2 = [C0];
+		enable3g = [02];
+		ifctl = [01 00 00];
+		ifmode = [64];
+		frmctr1 = [00 18];
+		pwctrl1 = [33];
+		pwctrl2 = [16];
+		pgamctrl = [00 00 00 00 00 00 00 00 00 00 00 00 00 00 00];
+		ngamctrl = [0C 23 26 04 10 04 39 24 4B 03 0B 0B 33 37 0F];
+	};
+};

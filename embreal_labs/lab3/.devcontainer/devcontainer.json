@@ -1,0 +1,17 @@
+{
+    "name": "zephyr-devcontainer",
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "app",
+    "workspaceFolder": "/root/zephyrproject/project",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+				"ms-vscode.cpptools",
+				"ms-vscode.cmake-tools",
+				"ms-vscode.cpptools-extension-pack",
+				"marus25.cortex-debug"
+			]
+        }
+    },
+    "shutdownAction": "stopCompose"
+}

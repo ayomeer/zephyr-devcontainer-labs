@@ -6,6 +6,7 @@ WORKDIR /home
 ARG UID=1000
 ARG GID=1000
 ARG ZSDK_VERSION=0.16.3
+ARG ZEPHYR_VERSION=3.1.0
 ARG WGET_ARGS="-q --show-progress --progress=bar:force:noscroll"
 
 # Set default shell during Docker image build to bash
@@ -14,7 +15,7 @@ SHELL ["/bin/bash", "-c"]
 # Set non-interactive frontend for apt-get to skip any user confirmations
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install base packages
+# Install base packages [Step 3]
 RUN apt-get -y update && \
 	apt-get -y upgrade && \
 	apt-get install --no-install-recommends -y \
@@ -81,23 +82,29 @@ RUN apt-get -y update && \
 		unzip \
 		valgrind \
 		wget \
+		curl \
 		ovmf \
 		xz-utils \
-		thrift-compiler
+		thrift-compiler \
+		usbutils 
 
+# Clean up stale packages
+RUN apt-get clean -y && \
+	apt-get autoremove --purge -y && \
+	rm -rf /var/lib/apt/lists/*
 
 # More base packages from apt
 RUN apt update && \
 	apt install nano
 
-# Install multi-lib gcc (x86 only)
+# Install multi-lib gcc (x86 only) 
 RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
 	apt-get install --no-install-recommends -y \
 		gcc-multilib \
 		g++-multilib \
 	; fi
 
-# Install i386 packages (x86 only)
+# Install i386 packages (x86 only) 
 RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
 	dpkg --add-architecture i386 && \
 	apt-get -y update && \
@@ -106,13 +113,13 @@ RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
 		libsdl2-dev:i386 \
 	; fi
 
-# Initialise system locale
+# Initialise system locale 
 RUN locale-gen en_US.UTF-8
 ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
 
-# Install Python dependencies
+# Install Python dependencies 
 RUN python3 -m pip install -U --no-cache-dir pip && \
 	pip3 install -U --no-cache-dir wheel setuptools && \
 	pip3 install --no-cache-dir pygobject && \
@@ -123,12 +130,8 @@ RUN python3 -m pip install -U --no-cache-dir pip && \
 		pylint sh statistics west && \
 	pip3 check
 
-# Clean up stale packages
-RUN apt-get clean -y && \
-	apt-get autoremove --purge -y && \
-	rm -rf /var/lib/apt/lists/*
 
-# Install Zephyr SDK
+# Install Zephyr SDK 
 RUN mkdir -p /opt/toolchains && \
 	cd /opt/toolchains && \
 	wget ${WGET_ARGS} https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.xz && \
@@ -138,18 +141,25 @@ RUN mkdir -p /opt/toolchains && \
 
 ENV ZEPHYR_TOOLCHAIN_VARIANT=zephyr
 
-# Copy SEGGER software package onto container and unpack
-RUN mkdir -p /home/opt/SEGGER
-COPY ./_install/JLink_Linux_V792j_x86_64.tgz /home/opt/SEGGER
-RUN cd /home/opt/SEGGER && \
-    tar xf JLink_Linux_V792j_x86_64.tgz && \
-    rm JLink_Linux_V792j_x86_64.tgz
 
-ENV PATH="/home/opt/SEGGER/JLink_Linux_V792j_x86_64:$PATH" 
+# Install SEGGER J-Link software package 
+RUN mkdir -p /root/opt/SEGGER && cd /root/opt/SEGGER && \
+	curl -d "accept_license_agreement=accepted&submit=Download+software" -X POST -O "https://www.segger.com/downloads/jlink/JLink_Linux_V792j_x86_64.deb" && \
+	dpkg --unpack JLink_Linux_V792j_x86_64.deb && \
+	rm -f /var/lib/dpkg/info/jlink.postinst
+RUN	dpkg --configure jlink; exit 0
+RUN apt-get update && apt install -yf 
 
-# Set up zephyr environment
-RUN west init ~/zephyrproject
+# Install SEGGER SystemView 
+RUN cd /root/opt/SEGGER && \
+	wget https://www.segger.com/downloads/systemview/SystemView_Linux_V352a_x86_64.deb && \
+	dpkg -i SystemView_Linux_V352a_x86_64.deb
+
+
+# Set up zephyr environment 
+ARG ZEPHYR_VERSION=v3.1.0
+RUN west init -m https://github.com/zephyrproject-rtos/zephyr --mr ${ZEPHYR_VERSION} ~/zephyrproject
 RUN cd ~/zephyrproject && \
-    west update && \
+    west update  && \
     west zephyr-export
 

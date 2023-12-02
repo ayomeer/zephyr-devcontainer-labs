@@ -1,0 +1,8 @@
+mainmenu "Application configuration parameters"
+
+config NUM_PHIL
+	int "Number of philosophers"
+	default 5
+	range 2 16
+
+source "Kconfig.zephyr"
