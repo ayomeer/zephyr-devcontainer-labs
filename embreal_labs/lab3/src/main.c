@@ -51,7 +51,7 @@ static void release_chopstick(uint8_t n, uint8_t chopstick_id);
 
 void main()
 {
-	/* Initialize mutexes */
+	/* Initialize mutex (semaphores) */
 	for (uint8_t n = 0; n < CONFIG_NUM_PHIL; ++n) {
 		k_sem_init(&chopsticks[n], 1, 1); // init as binary semaphores
 	}
@@ -88,13 +88,14 @@ static void philosopher(void *p1, void *p2, void *p3) // arg p1 = {0,1,2,3,4,5},
 		k_msleep(MIN_THINKING_TIME + sys_rand32_get() % (MAX_THINKING_TIME - MIN_THINKING_TIME));	         
 		display_thinking(n, false);
 		/* NOTE:
-			k_msleep() to let other threads run
+			k_msleep() lets other threads run
 		*/
 
 		/* Philosopher *tries* to grab chopsticks to start eating */
-		// k_mutex_lock() places thread in 'blocked' state if already in use
+		SEGGER_SYSVIEW_Print("log: left_chopstick");
 		claim_chopstick(n, left_chopstick);
-		k_msleep(3000); // /!\ FORCING DEADLOCK
+		// k_msleep(3000); // /!\ FORCING DEADLOCK
+		SEGGER_SYSVIEW_Print("log: right_chopstick");
 		claim_chopstick(n, right_chopstick);
 
 		/* If both chopsticks acquired, philosopher starts eating */
